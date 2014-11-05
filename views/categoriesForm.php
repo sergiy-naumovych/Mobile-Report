@@ -141,7 +141,8 @@
                     <a href="javascript:none();" class="primaryButton" id="btnGraphSave"><?php echo $btn['save']; ?></a>&nbsp;
                     <a href="javascript:none();" class="primaryButton" id="btnGraphCreate"><?php echo $btn['create']; ?></a>&nbsp;
                     <a href="javascript:none();" class="primaryButton" id="btnGraphVariables"><?php echo $category['filters']; ?></a>&nbsp; 
-                    
+                    <a href="javascript:none();" class="primaryButton" id="btnGraphFields"><?php echo $category['fields']; ?></a>&nbsp;
+
                 </div>
 
                 <div id="graph-form" class="form-main">
@@ -463,6 +464,63 @@
             </form>
         </div>
     </div>
+</div>
+
+
+
+<div id="fields-window">
+    <div id="field-form">
+        <a href="javascript:none();" class="declineButton" id="closeFieldsForm"><?php echo $btn['close']; ?></a>&nbsp;
+        <a href="javascript:none();" class="primaryButton" id="saveNewField"><?php echo $btn['save']; ?></a>&nbsp;
+        <a href="javascript:none();" class="primaryButton" id="updateField"><?php echo $btn['update']; ?></a>&nbsp;
+        <a href="javascript:none();" class="primaryButton" id="activateField"><?php echo $btn['activate']; ?></a>&nbsp;
+        <a href="javascript:none();" class="declineButton" id="deleteField"><?php echo $btn['delete']; ?></a>&nbsp;
+        <div>
+            <div>
+                <label for="field-name"><?php echo "FIELD NAME"; ?></label>
+                <input type="text" required name="field-name" id="field-name">
+            </div>
+
+            <div>
+                <label for="field-length"><?php echo "LENGTH"; ?></label>
+                <input type="number" required name="field-length" id="field-length">
+            </div>
+
+            <div>
+                <label for="field-type"><?php echo "FIELD TYPE"; ?></label>
+                <select name="field-type" id="field-type">
+                    <option value="4">String</option>
+                    <option value="2">Date</option>
+                    <option value="1">Number</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="field-format"><?php echo "FORMAT"; ?></label>
+                <input type="text" required name="field-format" id="field-format">
+            </div>
+
+            <div>
+                <label for="field-align"><?php echo "ALIGN"; ?></label>
+                <select name="field-align" id="field-align">
+                    <option value="Center">Center</option>
+                    <option value="Left">Left</option>
+                    <option value="Right">Right</option>
+                </select>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <a href="javascript:none();" class="primaryButton" id="addField"><?php echo "ADD FIELD"; ?></a>&nbsp;
+    <a href="javascript:none();" class="primaryButton" id="editField"><?php echo "EDIT"; ?></a>&nbsp;
+
+    <ol id="fields-list" class="sortable ui-sortable">
+
+    </ol>
+
 </div>
 
 <script src="js/categories.js"></script>

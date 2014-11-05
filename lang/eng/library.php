@@ -56,7 +56,8 @@ $category = Array(
     "filters" => "FILTERS",
     "createNewCategory" => "CREATE NEW CATEGORY",
     "editCategory" => "EDIT CATEGORY",
-    "createNewGraph" => "CREATE NEW GRAPH"
+    "createNewGraph" => "CREATE NEW GRAPH",
+    "fields" => "FIELDS"
 );
 
 $graph = Array(

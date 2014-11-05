@@ -88,10 +88,10 @@
                     <?php echo $mainPage['adminPanel']; ?>
                 </div>
                 <div class="commands">
-                    <div id="lang">
+                    <!--<div id="lang">
                         <a href="?l=tur"><img src="img/tur.png" height="15" /></a>
                         <a href="?l=en"><img src="img/en.png" height="15" /></a>
-                    </div>
+                    </div>-->
                 </div>
             </div>
 

@@ -63,6 +63,16 @@ $(function() {
             $('#editItem, #editVariable, #addItem').hide();
         }
     });
+
+    $("#fields-window").dialog({
+        width: 520,
+        height: 390,
+        autoOpen: false,
+        title: 'FIELDS',
+        open: function(event, ui) {
+            $('#editField').hide();
+        }
+    });
     
     $("#help-dialog").dialog({
         width: 520,
@@ -88,15 +98,30 @@ $(function() {
         Variables.init();
     });
 
+    $('#btnGraphFields').bind('click', function() {
+        Fields.init();
+    });
+
     $('#addVariable').bind('click', function() {
         $('#filter-name, #var-name').val('');
         $('#activateFilter, #updateFilter, #deleteFilter').hide();
         $('#saveNewFilter').show();
         $('#filter-form').slideDown();
     });
+
+    $('#addField').bind('click', function() {
+        $('#field-name, #field-length, #field-format').val('');
+        $('#activateField, #updateField, #deleteField').hide();
+        $('#saveNewField').show();
+        $('#field-form').slideDown();
+    });
     
     $('#closeFilterForm').bind('click', function() {
         $('#filter-form').slideUp();
+    });
+
+    $('#closeFieldsForm').bind('click', function() {
+        $('#field-form').slideUp();
     });
 
     $('#addVarItem').bind('click', function() {
@@ -117,6 +142,13 @@ $(function() {
         $(this).find('ol').toggle(500);
     });
 
+    $(document).on('click', '#fields-list>li.field', function() {
+        $('.selected-item').removeClass('selected-item');
+        $(this).addClass('selected-item');
+        $('#editField').show();
+        Fields.field = parseInt($(this).attr('data-id'));
+    });
+
     $(document).on('click', '#variables-list li.item', function(event) {
         $('.selected-item').removeClass('selected-item');
         $(this).addClass('selected-item');
@@ -128,6 +160,10 @@ $(function() {
     
     $('#saveNewFilter').bind('click', function(){
         Variables.addFilter();
+    });
+
+    $('#saveNewField').bind('click', function(){
+        Fields.addField();
     });
     
     ////////////////////////////////////////////////////////////////////////////
@@ -153,6 +189,14 @@ $(function() {
     $('#activateFilter').bind('click', function() {
         Variables.activateFilter();
     });
+
+    $('#deleteField').bind('click', function() {
+        Fields.deleteField();
+    });
+
+    $('#activateField').bind('click', function() {
+        Fields.activateField();
+    });
     
     $('#deleteItem').bind('click', function() {
         Items.deleteItem();
@@ -164,6 +208,10 @@ $(function() {
     
     $('#updateFilter').bind('click', function() {
         Variables.updateFilter();
+    });
+
+    $('#updateField').bind('click', function() {
+        Fields.updateField();
     });
     
     $('#updateItem').bind('click', function() {
@@ -187,6 +235,11 @@ $(function() {
     $('#editVariable').bind('click', function() {
         $('#updateFilter').show();
         Variables.edit();
+    });
+
+    $('#editField').bind('click', function() {
+        $('#updateField').show();
+        Fields.edit();
     });
     
     $('span.sql-help').bind('click', function(){
@@ -274,7 +327,7 @@ var Graph = {
             //if(item)
         }
         options.sql_command = $('#graph-form #sql_command').val().replace(expr, "\'");
-        console.log(options.sql_command.replace(expr, "\'"));
+//        console.log(options.sql_command.replace(expr, "\'"));
         options.colors = options.colors.toString();
         return options;
     },
@@ -409,7 +462,7 @@ var Variables = {
     },
             
     createFilterList: function(data){
-        console.log(data);
+//        console.log(data);
         var inner = '',
             del = '';
         data.forEach(function(item, index){
@@ -464,7 +517,7 @@ var Variables = {
                     if(!company['error']){
                         var inner = '<li class="variable" data-id="'+company['data']+'">' +
                                     '<div class="var-page-title">' +
-                                        '<img align="right" class="is-online" src="img/cancel.png">' +
+                                        '<img align="right" class="is-online" src="img/accept.png">' +
                                         '<span class="page-title-span">'+name+'</span>' +
                                     '</div>' +
                                     '<ol>' +
@@ -617,7 +670,7 @@ var Items = {
                     if(!company['error']){
                         var inner = '<li class="item" data-id="'+company['data']+'">' +
                             '<div class="item-page-title">' +
-                                '<img align="right" class="is-online" src="img/cancel.png">' +
+                                '<img align="right" class="is-online" src="img/accept.png">' +
                                 '<span class="page-title-span">'+display_value+'</span>' +
                             '</div>' +
                         '</li>';
@@ -750,5 +803,223 @@ var Help = {
     
     filterHelpOpen: function(){
         $("#filter-help").dialog('open');
+    }
+};
+
+var Fields = {
+    graph: 0,
+    field: 0,
+
+    init: function() {
+        Fields.graph = parseInt($('#graph-form #id').val());
+        var id = Fields.graph;
+        if (id < 1)
+            return;
+
+        $('div#loading').show();
+        $.post('index.php', {'ajax': true,
+            'type': 'graph-fields-info',
+            'id': id})
+            .success(function(inf) {
+                $('div#loading').hide();
+                if (inf) {
+                    var graph = JSON.parse(inf);
+//                    console.log(graph);
+                    if (!graph['error']) {
+                        Fields.createFieldList(graph['data']);
+                        Fields.open();
+                    }
+                }
+
+            });
+    },
+
+    open: function() {
+        $("#fields-window").dialog('open');
+    },
+
+    close: function() {
+        $("#fields-window").dialog('close');
+    },
+
+    createFieldList: function(data){
+//        console.log(data);
+        var inner = '',
+            del = '';
+        data.forEach(function(item, index){
+            del = (item.isdeleted == 0) ? 'img/accept.png' : 'img/cancel.png';
+            inner += '<li class="field" data-id="'+item.id+'" data-online="'+item.isdeleted+'">' +
+                '<div class="var-page-title">' +
+                '<img align="right" class="is-online" src="'+del+'">' +
+                '<span class="page-title-span">'+item.name+'</span>' +
+                '</div>' +
+                '</li>';
+        });
+
+        $('ol#fields-list').html(inner);
+    },
+
+
+    addField: function(){
+        var field_name = $('#field-name').val().replace(/^\s+|\s+$/g, ""),
+            field_length = $('#field-length').val(),
+            field_type = $('select#field-type option:selected').val(),
+            field_format = $('#field-format').val(),
+            field_align = $('#field-align').val(),
+            graph = Fields.graph;
+
+        if (field_name && field_type) {
+            $('div#loading').show();
+            $.post('index.php', {'ajax': true,
+                'type': 'new-field',
+                'field_name': field_name,
+                'field_length': field_length,
+                'field_type': field_type,
+                'field_format': field_format,
+                'field_align': field_align,
+                'graph': graph})
+                .success(function(inf) {
+                    if (inf) {
+                        $('div#loading').hide();
+                        var company = JSON.parse(inf);
+                        if(!company['error']){
+                            var inner = '<li class="variable" data-id="'+company['data']+'">' +
+                                '<div class="var-page-title">' +
+                                '<img align="right" class="is-online" src="img/accept.png">' +
+                                '<span class="page-title-span">'+field_name+'</span>' +
+                                '</div>' +
+                                '</li>';
+                            $('ol#fields-list').append(inner);
+                        }
+                        $('#field-form').slideUp();
+                    }
+                });
+
+        } else {
+            return;
+        }
+    },
+
+    edit: function(){
+        if(Fields.field < 0)
+            return;
+
+        var id = Fields.field;
+        $('div#loading').show();
+        $.post('index.php', {'ajax': true,
+            'type': 'field-info',
+            'id': id})
+            .success(function(inf) {
+//                console.log(inf);
+                if (inf) {
+                    $('div#loading').hide();
+                    var category = JSON.parse(inf);
+                    if(!category['error'])
+                        Fields.setFieldInfo(category['data']);
+                }
+
+            });
+    },
+
+    setFieldInfo: function(data){
+        if(!data)
+            return;
+
+        $('select#field-type option:selected').attr('selected', false);
+        $('select#field-type option[value="'+data['data_type']+'"]').attr('selected', true);
+        $('select#field-align option[value="'+data['align']+'"]').attr('selected', true);
+
+        $('#field-name').val(data['name']);
+        $('#field-length').val(data['length']);
+        $('#field-format').val(data['mask']);
+
+        if(data['isdeleted'] == 0){
+            $('#activateField, #saveNewField').hide();
+            $('#deleteField').show();
+        } else {
+            $('#activateField').show();
+            $('#deleteField, #saveNewField').hide();
+        }
+
+        $('#field-form').slideDown();
+    },
+
+    updateField: function() {
+        var field_name = $('#field-name').val().replace(/^\s+|\s+$/g, ""),
+            field_length = $('#field-length').val(),
+            field_type = $('select#field-type option:selected').val(),
+            field_align = $('select#field-align option:selected').val(),
+            field_format = $('#field-format').val(),
+            id = Fields.field;
+        if (id <= 0 || !field_name || !field_type)
+            return;
+
+        $('div#loading').show();
+        $.post('index.php', {'ajax': true,
+            'type': 'update-field',
+            'id': id,
+            'field_name': field_name,
+            'field_length': field_length,
+            'field_type': field_type,
+            'field_align': field_align,
+            'field_format': field_format})
+            .success(function(inf) {
+                $('div#loading').hide();
+                if (inf) {
+                    var company = JSON.parse(inf);
+                    if (!company['error']) {
+                        $('li.field[data-id="' + id + '"]>div>span').text(field_name);
+                    }
+                }
+                $('#field-form').slideUp();
+            });
+    },
+
+    deleteField: function(){
+        if(Fields.field < 0)
+            return;
+
+        var id = Fields.field;
+
+        $('div#loading').show();
+        $.post('index.php', {'ajax': true,
+            'type': 'delete-field',
+            'id': id})
+            .success(function(inf) {
+                $('div#loading').hide();
+                $('#field-form').slideUp();
+                if (inf) {
+                    var data = JSON.parse(inf);
+                    if (!data['error']){
+                        $('li.field[data-id="'+id+'"]').attr('data-online', '1');
+                        $('li.field[data-id="'+id+'"]>div>img.is-online').attr('src', 'img/cancel.png');
+                    }
+                }
+//                $('#filter-form').slideUp();
+            });
+    },
+
+    activateField: function(){
+        if(Fields.field < 0)
+            return;
+
+        var id = Fields.field;
+
+        $('div#loading').show();
+        $.post('index.php', {'ajax': true,
+            'type': 'activate-field',
+            'id': id})
+            .success(function(inf) {
+                $('div#loading').hide();
+                $('#field-form').slideUp();
+                if (inf) {
+                    var data = JSON.parse(inf);
+                    if (!data['error']){
+                        $('li.field[data-id="'+id+'"]').attr('data-online', '0');
+                        $('li.field[data-id="'+id+'"]>div>img.is-online').attr('src', 'img/accept.png');
+                    }
+                }
+//                $('#filter-form').slideUp();
+            });
     }
 };

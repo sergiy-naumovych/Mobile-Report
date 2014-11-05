@@ -2,7 +2,7 @@
 
 final class Settings
 {
-    static public $db_name = 'mobile_report'; //'mobile_report';//'example';//'logodancom';
+    static public $db_name = 'mobile_report';//'example';//'logodancom';
 
     static public $db_user = 'root'; //'mobilerpt.com';//'root';//'logodan.com';
 

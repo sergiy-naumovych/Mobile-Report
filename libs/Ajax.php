@@ -113,10 +113,17 @@ final class Ajax {
                 
             case 'graph-filter-info':
                 return self::selectFilterInfo($_POST['id']);
+
+            case 'graph-fields-info':
+                return self::selectFieldsInfo($_POST['id']);
                 
             case 'new-filter':
                 return self::createFilter($_POST['name'], $_POST['var_name'], 
                         $_POST['graph'], $_POST['filter_type']);
+
+            case 'new-field':
+                return self::createField($_POST['field_name'], $_POST['field_length'],
+                    $_POST['graph'], $_POST['field_type'], $_POST['field_format'], $_POST['field_align']);
                 
             case 'new-item':
                 return self::createFilterItem($_POST['graph_filter'], 
@@ -130,6 +137,9 @@ final class Ajax {
                 
             case 'filter-info':
                 return self::selectFilter($_POST['id']);
+
+            case 'field-info':
+                return self::selectField($_POST['id']);
                 
             case 'item-info':
                 return self::selectItem($_POST['id']);
@@ -139,6 +149,12 @@ final class Ajax {
 
             case 'activate-filter':
                 return self::activateFilter($_POST['id']);
+
+            case 'delete-field':
+                return self::deleteField($_POST['id']);
+
+            case 'activate-field':
+                return self::activateField($_POST['id']);
                 
             case 'delete-item':
                 return self::deleteItem($_POST['id']);
@@ -153,6 +169,10 @@ final class Ajax {
             case 'update-filter':
                 return self::updateFilter($_POST['id'], $_POST['filter_name'], 
                         $_POST['var_name'], $_POST['filter_type']);
+
+            case 'update-field':
+                return self::updateField($_POST['id'], $_POST['field_name'],
+                    $_POST['field_length'], $_POST['field_type'], $_POST['field_format'], $_POST['field_align']);
                 
             case 'notification-info':
                 return Notification::selectInfo($_POST['id']);
@@ -500,6 +520,30 @@ final class Ajax {
         }
     }
 
+    public static function selectFieldsInfo($graph) {
+        try {
+            $sql = "SELECT * FROM `graph_field` WHERE `graph` = '".$graph."'";
+
+            $categories = Array();
+            if ($result = Connection::$mysqli->query($sql)) {
+                while ($category = $result->fetch_assoc()) {
+                    $categories[] = $category;
+
+                }
+                $result->free();
+            }
+
+
+            self::$result['data'] = $categories;
+
+            return json_encode(self::$result);
+
+        } catch (Exception $e) {
+            self::$result['error'] = true;
+            return json_encode(self::$result);
+        }
+    }
+
     public static function selectFilterItems($filter) {
         try {
             $sql = "SELECT * FROM `graph_filter_items` WHERE `graph_filter` = '".$filter."'";
@@ -540,6 +584,33 @@ final class Ajax {
             
             self::$result['error'] = true;
             
+            return json_encode(self::$result);
+        }
+    }
+
+    public static function createField($field_name, $field_length,
+                    $graph, $field_type, $field_format, $field_align){
+        try {
+            $version = self::selectMaxVersion('graph_field');
+
+            $sql = "INSERT INTO graph_field(name, graph, length, data_type, mask, version, isdeleted, align) "
+                . "VALUES ('" . $field_name . "', '". $graph ."', '". $field_length ."', '". $field_type ."'," .
+                " '". $field_format ."', '" . $version . "', 0, '" . $field_align . "')";
+
+
+            Connection::$mysqli->query($sql);
+
+            self::$result['data'] = Connection::$mysqli->insert_id;
+
+            Connection::$mysqli->insert_id ? '' : (self::$result['error'] = true);
+
+            return json_encode(self::$result);
+
+
+        } catch (Exception $e) {
+
+            self::$result['error'] = true;
+
             return json_encode(self::$result);
         }
     }
@@ -609,6 +680,30 @@ final class Ajax {
             return json_encode(self::$result);
         }
     }
+
+    public static function selectField($filter) {
+        try {
+            $sql = "SELECT * FROM `graph_field` WHERE `id` = '".$filter."'";
+
+            $categories = Array();
+            if ($result = Connection::$mysqli->query($sql)) {
+                while ($category = $result->fetch_assoc()) {
+                    $categories = $category;
+
+                }
+                $result->free();
+            }
+
+
+            self::$result['data'] = $categories;
+
+            return json_encode(self::$result);
+
+        } catch (Exception $e) {
+            self::$result['error'] = true;
+            return json_encode(self::$result);
+        }
+    }
     
     public static function selectItem($item) {
         try {
@@ -658,6 +753,32 @@ final class Ajax {
 
     public static function activateFilter($filter) {
         return self::deleteFilter($filter, 0);
+    }
+
+    public static function deleteField($field, $del=1) {
+        try {
+            $version = self::selectMaxVersion('graph_field');
+
+            $sql = "UPDATE graph_field SET isdeleted = '".$del."', version = '"
+                . $version . "' WHERE id = '" . $field . "'";
+
+            Connection::$mysqli->query($sql);
+
+            self::$result['data'] = Connection::$mysqli->affected_rows;
+
+            (Connection::$mysqli->affected_rows > 0) ? '' : (self::$result['error'] = true);
+
+            return json_encode(self::$result);
+        } catch (Exception $e) {
+
+            self::$result['error'] = true;
+
+            return json_encode(self::$result);
+        }
+    }
+
+    public static function activateField($field) {
+        return self::deleteField($field, 0);
     }
     
     public static function deleteItem($item, $del=1) {
@@ -709,6 +830,37 @@ final class Ajax {
 
             return json_encode(self::$result);
         }
+    }
+
+
+    public static function updateField($id, $field_name,
+                    $field_length, $field_type, $field_format, $field_align){
+        try {
+
+            $version = self::selectMaxVersion('graph_field');
+            $sql = "UPDATE graph_field SET "
+                . "name = '" . $field_name . "', "
+                . "length = '" . $field_length . "', "
+                . "data_type = '" . $field_type . "', "
+                . "mask = '" . $field_format . "', "
+                . "version = '".$version."', "
+                . "align = '".$field_align."' "
+                . " WHERE id = '" . $id . "'";
+
+            Connection::$mysqli->query($sql);
+
+            self::$result['data'] = Connection::$mysqli->affected_rows;
+
+            (Connection::$mysqli->affected_rows > 0) ? '' : (self::$result['error'] = true);
+
+            return json_encode(self::$result);
+        } catch (Exception $e) {
+
+            self::$result['error'] = true;
+
+            return json_encode(self::$result);
+        }
+
     }
     
     public static function updateItem($id, $list_value, $display_value) {

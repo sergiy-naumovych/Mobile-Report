@@ -1,8 +1,9 @@
 <?php
 
-//define('URL', '/service');
-define('URL', '/mobilerpt');
+define('URL', '/service');
+//define('URL', ':8008/mobilerpt');
 //display_errors(0);
+error_reporting(0);
 header('Content-Type: text/html; charset=utf-8');
 
 include_once './controllers/main.php';
@@ -21,13 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ajax'])) {
     Ajax::init();
 } else {
     session_start();
-    
+
     $lang = setLang();
-    
+
     $controller = new Main($lang);
+
+    if(isset($_GET['url'])){
+        $url = explode('/', $_GET['url']);
+        if(isset($url[1]) && $url[1] == 'logout'){
+            $controller->logout();
+        }
+    }
     $controller->index();
-    
-    
+
+
     //розбиваємо адресу запиту
     if (isset($_GET['url'])) {
         try {
@@ -61,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ajax'])) {
         $controller = new Main($lang);
         $controller->index();
     }
-     
-     
+
+
 }
 
 function setLang(){
@@ -73,7 +81,7 @@ function setLang(){
         switch ($_GET['l']) {
             case "tur":
                 setcookie("lang", "turkish");
-                $lang = 'lang/tur/library.php';
+                //$lang = 'lang/tur/library.php';
                 break;
             default :
                 setcookie("lang", "english");
@@ -82,14 +90,14 @@ function setLang(){
     } else {
         switch ($_COOKIE['lang']) {
             case "turkish":
-                $lang = 'lang/tur/library.php';
+                //$lang = 'lang/tur/library.php';
                 break;
             default :
                 break;
         }
     }
-    
+
     return $lang;
 
-    
+
 }

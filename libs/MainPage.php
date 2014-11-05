@@ -33,7 +33,7 @@ final class MainPage{
     }
     
     static function showLayout(){
-        include_once Main::$library;;
+        include_once Main::$library;
         include_once 'views/settings.php';
     }
 

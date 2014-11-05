@@ -376,17 +376,17 @@ input[type=file] {
 
 
 
-#variables-window .content-table {
+#variables-window .content-table, #fields-window .content-table {
     margin-top: 40px;
     text-align: center;
 }
 
-#variables-window > a {
+#variables-window > a, #fields-window > a {
     position: relative;
     top: 10px;
 }
 
-#variables-window  a {
+#variables-window  a, #fields-window  a {
     color: #FFFFFF;
 }
 
@@ -395,12 +395,12 @@ input[type=file] {
     text-align: center;
 }
 
-#variables-list {
+#variables-list, #fields-list {
     margin-top: 40px;
     width: 98%;
 }
 
-#variables-list li {
+#variables-list li, #fields-list li {
     cursor: pointer;
     margin-bottom: 2px;
 }
@@ -412,7 +412,7 @@ input[type=file] {
     padding: 5px 5px 5px 20px;
 }
 
-#variables-list ol {
+#variables-list ol, #fields-list ol {
     display: none;
     margin-top: 2px;
 }
@@ -425,7 +425,7 @@ input[type=file] {
 }
 
 
-#filter-form, #item-form {
+#filter-form, #item-form, #field-form {
     background-color: #0E76BC;
     display: none;
     height: 120px;
@@ -438,23 +438,32 @@ input[type=file] {
     z-index: 1;
 }
 
+#field-form {
+    height: 200px;
+}
+
 #filter-form > div > div, #item-form > div > div {
     float: left;
     width: 33%;
     
 }
 
-#filter-form label, #item-form label {
+#field-form > div > div {
+    float: left;
+    width: 33%;
+}
+
+#filter-form label, #item-form label, #field-form label {
     color: #FFFFFF;
     
 }
 
-#filter-form input, #item-form input {
+#filter-form input, #item-form input, #field-form input {
     width: 80%;
     color: black;
 }
 
-#filter-form > a, #item-form > a {
+#filter-form > a, #item-form > a, #field-form > a {
     position: relative;
     top: 10px;
 }
@@ -465,9 +474,17 @@ input[type=file] {
     font-weight: bold;
 }
 
-#filter-form select {
+#filter-form select, #field-form select {
     height: 33px;
 }
+
+
+
+
+
+
+
+
 
 #update-notification, #delete-notification, #activate-notification{
    display: none; 
